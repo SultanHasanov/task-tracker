@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task Tracker Pro</title>
+    <link
+      rel="stylesheet"
+      href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1><i class="fas fa-tasks"></i> Task Tracker Pro</h1>
+        <button id="add-task-btn">
+          <i class="fas fa-plus"></i> Новая задача
+        </button>
+      </header>
+
+      <div class="board">
+    <div class="column" id="todo">
+        <h2><i class="fas fa-clipboard-list"></i> Задачи</h2>
+        <div class="filter">
+            <span class="filter-label">Сортировка:</span>
+            <select class="filter-assignee">
+                <option value="">Все</option>
+                <option value="Султан">Султан</option>
+                <option value="Рамзан">Рамзан</option>
+            </select>
+        </div>
+        <div class="task-list" id="todo-tasks"></div>
+    </div>
+
+    <div class="column" id="in-progress">
+        <h2><i class="fas fa-spinner"></i> В работе</h2>
+        <div class="filter">
+            <span class="filter-label">Сортировка:</span>
+            <select class="filter-assignee">
+                <option value="">Все</option>
+                <option value="Султан">Султан</option>
+                <option value="Рамзан">Рамзан</option>
+            </select>
+        </div>
+        <div class="task-list" id="in-progress-tasks"></div>
+    </div>
+
+    <div class="column" id="done">
+        <h2><i class="fas fa-check-circle"></i> Сделано</h2>
+        <div class="filter">
+            <span class="filter-label">Сортировка:</span>
+            <select class="filter-assignee">
+                <option value="">Все</option>
+                <option value="Султан">Султан</option>
+                <option value="Рамзан">Рамзан</option>
+            </select>
+        </div>
+        <div class="task-list" id="done-tasks"></div>
+    </div>
+</div>
+    </div>
+
+    <!-- Модальное окно для создания/редактирования задачи -->
+    <div id="task-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="modal-title">Новая задача</h2>
+        <form id="task-form">
+          <input type="hidden" id="task-id" />
+          <div class="form-group">
+            <label for="task-title">Название задачи</label>
+            <input type="text" id="task-title" required />
+          </div>
+          <div class="form-group">
+            <label for="task-description">Описание</label>
+            <textarea id="task-description" rows="5"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="task-assignee">Ответственный</label>
+            <select id="task-assignee" required>
+              <option value="">Выберите ответственного</option>
+              <option value="Султан">Султан</option>
+              <option value="Рамзан">Рамзан</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="task-due-date">Срок выполнения</label>
+            <input type="date" id="task-due-date" required />
+          </div>
+          <div class="form-group">
+            <label for="task-priority">Приоритет</label>
+            <select id="task-priority">
+              <option value="low">Низкий</option>
+              <option value="medium" selected>Средний</option>
+              <option value="high">Высокий</option>
+            </select>
+          </div>
+          <div
+            class="form-group"
+            id="revision-comment-group"
+            style="display: none"
+          >
+            <label for="revision-comment">Комментарий на доработку</label>
+            <textarea id="revision-comment" rows="3"></textarea>
+            <!-- Убрали required -->
+          </div>
+          <div class="buttons">
+            <button type="submit" class="submit-btn">Сохранить</button>
+            <button type="button" id="cancel-btn" class="cancel-btn">
+              Отмена
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Модальное окно для комментария на доработку -->
+    <div id="revision-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Отправить на доработку</h2>
+        <form id="revision-form">
+          <input type="hidden" id="revision-task-id" />
+          <div class="form-group">
+            <label for="revision-comment-text">Комментарий на доработку</label>
+            <textarea id="revision-comment-text" rows="5" required></textarea>
+          </div>
+          <div class="buttons">
+            <button type="submit" class="submit-btn">Отправить</button>
+            <button type="button" id="cancel-revision-btn" class="cancel-btn">
+              Отмена
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Модальное окно для подтверждения удаления -->
+    <div id="delete-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Подтверждение удаления</h2>
+        <p>Вы уверены, что хотите удалить эту задачу?</p>
+        <div class="buttons">
+          <button id="confirm-delete-btn" class="submit-btn">Удалить</button>
+          <button id="cancel-delete-btn" class="cancel-btn">Отмена</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
