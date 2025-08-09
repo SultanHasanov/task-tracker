@@ -191,44 +191,31 @@ async function loadTasks() {
 }
 
 function renderTask(task) {
-  const taskElement = $(`    
-        <div class="task-card ${
-          task.status === "in-progress" ? "in-progress" : ""
-        } ${task.status === "done" ? "done" : ""} ${
-    task.isRevision ? "revision" : ""
-  }" 
-             id="task-card-${task.id}" data-task-id="${
-    task.id
-  }" data-assignee="${task.assignee}">
+  const taskElement = $(`
+        <div class="task-card ${task.status === 'in-progress' ? 'in-progress' : ''} ${task.status === 'done' ? 'done' : ''} ${task.isRevision ? 'revision' : ''}" 
+             id="task-card-${task.id}" data-task-id="${task.id}" data-status="${task.status}">
             <div class="task-actions">
                 <button class="edit-task" title="Редактировать"><i class="fas fa-edit"></i></button>
                 <button class="delete-task" title="Удалить"><i class="fas fa-trash"></i></button>
             </div>
-            <h3>${task.title} ${
-    task.isRevision && task.status === "todo"
-      ? '<span class="revision-badge" title="На доработке"><i class="fas fa-redo"></i></span>'
-      : ""
-  }</h3>
-            <div class="task-description">${
-              task.description || "Нет описания"
-            }</div>
+            <h3>${task.title} ${task.isRevision && task.status === 'todo' ? '<span class="revision-badge" title="На доработке"><i class="fas fa-redo"></i></span>' : ''}</h3>
+            <div class="task-description">${task.description || 'Нет описания'}</div>
             <div class="task-meta">
-                <span><i class="fas fa-user"></i> Ответственный: ${
-                  task.assignee || "Не указан"
-                }</span>
-                <span><i class="fas fa-calendar-alt"></i> ${formatDate(
-                  task.dueDate
-                )}</span>
+                <span><i class="fas fa-user"></i> Ответственный: ${task.assignee || 'Не указан'}</span>
+                <span><i class="fas fa-calendar-alt"></i> ${formatDate(task.dueDate)}</span>
+            </div>
+            <div class="task-status-select">
+                <select class="status-select">
+                    <option value="todo" ${task.status === 'todo' ? 'selected' : ''}>Задачи</option>
+                    <option value="in-progress" ${task.status === 'in-progress' ? 'selected' : ''}>В работе</option>
+                    <option value="done" ${task.status === 'done' ? 'selected' : ''}>Сделано</option>
+                </select>
             </div>
             <div class="task-meta">
                 <span class="task-priority priority-${task.priority}">
                     ${getPriorityText(task.priority)}
                 </span>
-                ${
-                  task.revisionComment
-                    ? '<span class="revision-info" title="Комментарий на доработку"><i class="fas fa-comment-dots"></i></span>'
-                    : ""
-                }
+                ${task.revisionComment ? '<span class="revision-info" title="Комментарий на доработку"><i class="fas fa-comment-dots"></i></span>' : ''}
             </div>
         </div>
     `);
@@ -266,6 +253,30 @@ function renderTask(task) {
     $("#task-modal").show();
   });
 
+
+   // Добавьте обработчик изменения статуса
+    taskElement.find('.status-select').change(async function() {
+        const newStatus = $(this).val();
+        const taskId = taskElement.data('task-id');
+        
+        // Получаем текущую задачу
+        const response = await fetch(`${API_URL}/${taskId}`);
+        const taskData = await response.json();
+        
+        // Обновляем статус задачи
+        await updateTask(taskId, {
+            ...taskData,
+            status: newStatus,
+            isRevision: newStatus === 'todo' && taskData.status === 'done' ? false : taskData.isRevision
+        });
+
+        // Отправляем уведомление в Telegram
+        const statusText = getStatusText(newStatus);
+        sendTelegramNotification(`Статус задачи "${taskData.title}" изменен на "${statusText}"`, taskData);
+        
+        // Перезагружаем задачи
+        loadTasks();
+    });
   // Обработчик удаления
   taskElement.find(".delete-task").click(function (e) {
     e.stopPropagation();

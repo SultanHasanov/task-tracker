@@ -240,6 +240,33 @@ h1 i {
     color: var(--secondary-color);
 }
 
+.task-status-select {
+    margin-top: 10px;
+}
+
+.task-status-select select {
+    width: 50%;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--medium-gray);
+    background-color: white;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.task-status-select select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Стили для разных статусов */
+.task-card[data-status="todo"] .status-select option[value="todo"],
+.task-card[data-status="in-progress"] .status-select option[value="in-progress"],
+.task-card[data-status="done"] .status-select option[value="done"] {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
 /* Модальные окна */
 .modal {
     display: none;
@@ -382,12 +409,18 @@ select {
     background-color: #d0d0d0;
 }
 
+.task-status-select{
+        display: none;
+    }
+
 /* Адаптивность */
 @media (max-width: 768px) {
     .board {
         flex-direction: column;
     }
-    
+    .task-status-select{
+        display: block;
+    }
     .column {
         margin-bottom: 20px;
     }
