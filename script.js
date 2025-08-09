@@ -1,6 +1,6 @@
 const API_URL = "https://6680fc4cf4b14d99.mokky.dev/items";
 const TELEGRAM_BOT_TOKEN = "8190479365:AAHnjDWn6sr_8SF6Cj_jw7HR2-Cu1fM_syA";
-const TELEGRAM_CHAT_ID = "-4796825963";
+const TELEGRAM_CHAT_ID = "-4873892757";
 
 $(document).ready(function () {
   // Инициализация
